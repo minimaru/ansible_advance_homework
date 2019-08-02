@@ -1,2 +1,29 @@
 ---
-# tasks file for db-tier
+# Variable configuration.
+- include_tasks: variables.yml
+
+- name: Ensure PostgreSQL packages are installed.
+  package:
+    name: "{{ item }}"
+    state: installed
+    enablerepo: "{{ postgresql_enablerepo }}"
+  with_items: "{{ postgresql_packages }}"
+
+- name: Ensure PostgreSQL Python libraries are installed.
+  package:
+    name: "{{ postgresql_python_library }}"
+    state: installed
+    enablerepo: "{{ postgresql_enablerepo }}"
+
+- include_tasks: initialize.yml
+- include_tasks: configure.yml
+
+- name: Ensure PostgreSQL is started and enabled on boot.
+  service:
+    name: "{{ postgresql_daemon }}"
+    state: started
+    enabled: yes
+
+# Configure PostgreSQL.
+- include_tasks: databases.yml
+- include_tasks: users.yml
